@@ -1,10 +1,10 @@
 --TEST--
-statsd_connect
+statsd_timing
 --FILE--
 <?php
 
 $statsd = statsd_connect('127.0.0.1');
-var_dump(is_resource($statsd));
+var_dump(statsd_timing($statsd, "request", 2400));
 echo "Done\n";
 ?>
 --EXPECTF--
