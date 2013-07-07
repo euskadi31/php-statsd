@@ -1,30 +1,51 @@
-# folders
-.libs
-autom4te.cache
-build
-include
-modules
-
-# files
-.DS_Store
+# Ignore automatically created files in building PHP extensions
 .deps
+.libs
+Makefile
+Makefile.fragments
+Makefile.global
+Makefile.objects
 acinclude.m4
 aclocal.m4
-*.guess
+autom4te.cache
+build
+config.guess
 config.h
 config.h.in
-*.log
-*.status
-*.in
-*.sub
-*.nice
+config.log
+config.nice
+config.status
+config.sub
 configure
+configure.in
 install-sh
 libtool
 ltmain.sh
-Makefile
-Makefile.*
 missing
 mkinstalldirs
+modules
 run-tests.php
-php_statsd.loT
+
+# Ignore test-related temporary files
+tmp-php.ini
+tests/*.diff
+tests/*.exp
+tests/*.log
+tests/*.php
+tests/*.sh
+tests/*.out
+
+# Ignore C-related temporary files
+*.o
+*.lo
+*.la
+
+# Ignore other temporary files
+#*#
+.*.rej
+*.rej
+.*~
+*~
+.#*
+.DS_Store
+Thumbs.db
