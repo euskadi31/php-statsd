@@ -1,2 +1,30 @@
+# folders
+.libs
+autom4te.cache
+build
+include
+modules
+
 # files
 .DS_Store
+.deps
+acinclude.m4
+aclocal.m4
+*.guess
+config.h
+config.h.in
+*.log
+*.status
+*.in
+*.sub
+*.nice
+configure
+install-sh
+libtool
+ltmain.sh
+Makefile
+Makefile.*
+missing
+mkinstalldirs
+run-tests.php
+php_statsd.loT
