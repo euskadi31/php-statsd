@@ -1,4 +1,10 @@
-
+/**
+ * php-statsd
+ * 
+ * @author Axel Etcheverry (http://twitter.com/euskadi31)
+ * @copyright Copyright (c) 2013 Axel Etcheverry
+ * @license http://creativecommons.org/licenses/MIT/deed.fr MIT
+ */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -12,7 +18,7 @@
 #include "ext/standard/file.h"
 
 #include "php_statsd.h"
-#include "../lib/statsd/include/statsd.h"
+#include "lib/statsd/src/statsd.h"
 
 static int le_statsdbuf;
 #define le_statsdbuf_name "StatsD Buffer"
@@ -23,41 +29,37 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_statsd_connect, 0, 0, 1)
     ZEND_ARG_INFO(0, ns)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO(arginfo_statsd_close, 0)
-    ZEND_ARG_INFO(0, statsd)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_statsd_send, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_statsd_send, 0, 0, 2)
     ZEND_ARG_INFO(0, statsd)
     ZEND_ARG_INFO(0, message)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_statsd_inc, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_statsd_inc, 0, 0, 3)
     ZEND_ARG_INFO(0, statsd)
     ZEND_ARG_INFO(0, stat)
     ZEND_ARG_INFO(0, sample_rate)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_statsd_dec, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_statsd_dec, 0, 0, 3)
     ZEND_ARG_INFO(0, statsd)
     ZEND_ARG_INFO(0, stat)
     ZEND_ARG_INFO(0, sample_rate)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_statsd_count, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_statsd_count, 0, 0, 4)
     ZEND_ARG_INFO(0, statsd)
     ZEND_ARG_INFO(0, stat)
     ZEND_ARG_INFO(0, count)
     ZEND_ARG_INFO(0, sample_rate)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_statsd_gauge, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_statsd_gauge, 0, 0, 3)
     ZEND_ARG_INFO(0, statsd)
     ZEND_ARG_INFO(0, stat)
     ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_statsd_timing, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_statsd_timing, 0, 0, 3)
     ZEND_ARG_INFO(0, statsd)
     ZEND_ARG_INFO(0, stat)
     ZEND_ARG_INFO(0, ms)
@@ -66,7 +68,6 @@ ZEND_END_ARG_INFO()
 
 const zend_function_entry php_statsd_functions[] = {
     PHP_FE(statsd_connect,  arginfo_statsd_connect)
-    PHP_FE(statsd_close,    arginfo_statsd_close)
     PHP_FE(statsd_send,     arginfo_statsd_send)
     PHP_FE(statsd_inc,      arginfo_statsd_inc)
     PHP_FE(statsd_dec,      arginfo_statsd_dec)
@@ -77,7 +78,9 @@ const zend_function_entry php_statsd_functions[] = {
 };
 
 zend_module_entry php_statsd_module_entry = {
+#if ZEND_MODULE_API_NO >= 20010901
     STANDARD_MODULE_HEADER,
+#endif
     "statsd",
     php_statsd_functions,
     PHP_MINIT(statsd),
@@ -85,7 +88,9 @@ zend_module_entry php_statsd_module_entry = {
     NULL,
     NULL,
     PHP_MINFO(statsd),
-    NO_VERSION_YET,
+#if ZEND_MODULE_API_NO >= 20010901
+    PHP_STATSD_VERSION,
+#endif
     STANDARD_MODULE_PROPERTIES
 };
 
@@ -107,11 +112,12 @@ PHP_MINIT_FUNCTION(statsd) {
 PHP_MINFO_FUNCTION(statsd) {
     php_info_print_table_start();
     php_info_print_table_row(2, "StatsD support", "enabled");
+    php_info_print_table_row(2, "StatsD Version", PHP_STATSD_VERSION);
     php_info_print_table_end();
 }
 
 
-PHP_FUNCTION(ftp_connect) {
+PHP_FUNCTION(statsd_connect) {
     statsd_t    *statsd;
     char        *host;
     int         host_len;
@@ -134,21 +140,6 @@ PHP_FUNCTION(ftp_connect) {
     }
 
     ZEND_REGISTER_RESOURCE(return_value, statsd, le_statsdbuf);
-}
-
-PHP_FUNCTION(statsd_close) {
-    zval        *z_statsd;
-    statsd_t    *statsd;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &z_statsd) == FAILURE) {
-        return;
-    }
-
-    ZEND_FETCH_RESOURCE(statsd, statsd_t*, &z_statsd, -1, le_statsdbuf_name, le_statsdbuf);
-
-    statsd_finalize(statsd);
-
-    RETURN_TRUE;
 }
 
 PHP_FUNCTION(statsd_send) {
@@ -175,15 +166,17 @@ PHP_FUNCTION(statsd_inc) {
     statsd_t    *statsd;
     char        *stat;
     int         stat_len;
-    float       sample_rate;
+    zval        **sample_rate;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rsf", &z_statsd, &stat, &stat_len, &sample_rate) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rsZ", &z_statsd, &stat, &stat_len, &sample_rate) == FAILURE) {
         return;
     }
 
     ZEND_FETCH_RESOURCE(statsd, statsd_t*, &z_statsd, -1, le_statsdbuf_name, le_statsdbuf);
 
-    if (statsd_inc(statsd, stat, sample_rate) == 0) {
+    convert_scalar_to_number_ex(sample_rate);
+
+    if (statsd_inc(statsd, stat, (float)Z_DVAL_PP(sample_rate)) == 0) {
         RETURN_TRUE;
     } else {
         RETURN_FALSE;
@@ -195,15 +188,17 @@ PHP_FUNCTION(statsd_dec) {
     statsd_t    *statsd;
     char        *stat;
     int         stat_len;
-    float       sample_rate;
+    zval        **sample_rate;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rsf", &z_statsd, &stat, &stat_len, &sample_rate) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rsZ", &z_statsd, &stat, &stat_len, &sample_rate) == FAILURE) {
         return;
     }
 
     ZEND_FETCH_RESOURCE(statsd, statsd_t*, &z_statsd, -1, le_statsdbuf_name, le_statsdbuf);
 
-    if (statsd_dec(statsd, stat, sample_rate) == 0) {
+    convert_scalar_to_number_ex(sample_rate);
+
+    if (statsd_dec(statsd, stat, (float)Z_DVAL_PP(sample_rate)) == 0) {
         RETURN_TRUE;
     } else {
         RETURN_FALSE;
@@ -216,15 +211,17 @@ PHP_FUNCTION(statsd_count) {
     char        *stat;
     int         stat_len;
     long        value;
-    float       sample_rate;
+    zval        **sample_rate;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rslf", &z_statsd, &stat, &stat_len, &value, &sample_rate) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rslZ", &z_statsd, &stat, &stat_len, &value, &sample_rate) == FAILURE) {
         return;
     }
 
     ZEND_FETCH_RESOURCE(statsd, statsd_t*, &z_statsd, -1, le_statsdbuf_name, le_statsdbuf);
 
-    if (statsd_count(statsd, stat, value, sample_rate) == 0) {
+    convert_scalar_to_number_ex(sample_rate);
+
+    if (statsd_count(statsd, stat, value, (float)Z_DVAL_PP(sample_rate)) == 0) {
         RETURN_TRUE;
     } else {
         RETURN_FALSE;
