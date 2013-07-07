@@ -1,0 +1,49 @@
+php-statsd
+==========
+
+[![Build Status](https://travis-ci.org/euskadi31/php-statsd.png)](https://travis-ci.org/euskadi31/php-statsd)
+
+DESCRIPTION
+-----------
+
+A PHP extension for StatsD
+
+INSTALL
+-------
+
+```
+git clone https://github.com/euskadi31/php-statsd.git
+cd php-statsd
+phpize
+./configure
+make
+make install
+```
+
+After install, add these lines to your php.ini
+
+```ini
+extension=statsd.so
+```
+
+SYSTEM REQUIREMENTS
+-------------------
+
+- OS: Linux, FreeBSD, MacOSX
+- PHP: 5.2.x, 5.3.x, 5.4.x, 5.5.x
+  - Tested only on 5.2.17, 5.3.21, 5.4.11, and 5.5.0
+- SAPI: CLI
+  - Other SAPIs are not tested, but there is no SAPI-dependent code.
+
+LICENSE
+-------
+
+The MIT License
+
+Copyright (c) 2012-2013 Axel Etcheverry
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
