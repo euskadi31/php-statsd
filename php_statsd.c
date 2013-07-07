@@ -12,7 +12,7 @@
 #include "ext/standard/file.h"
 
 #include "php_statsd.h"
-#include "statsd.h"
+#include "../lib/statsd/include/statsd.h"
 
 static int le_statsdbuf;
 #define le_statsdbuf_name "StatsD Buffer"
