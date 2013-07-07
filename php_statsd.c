@@ -74,7 +74,8 @@ const zend_function_entry php_statsd_functions[] = {
     PHP_FE(statsd_count,    arginfo_statsd_count)
     PHP_FE(statsd_gauge,    arginfo_statsd_gauge)
     PHP_FE(statsd_timing,   arginfo_statsd_timing)
-    PHP_FE_END
+    {NULL, NULL, NULL}
+    //PHP_FE_END
 };
 
 zend_module_entry php_statsd_module_entry = {
