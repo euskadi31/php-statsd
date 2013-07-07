@@ -1,0 +1,3 @@
+[submodule "lib/statsd"]
+    path = lib/statsd
+    url = https://github.com/euskadi31/libstatsd.git
