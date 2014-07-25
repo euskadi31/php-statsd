@@ -30,7 +30,7 @@ SYSTEM REQUIREMENTS
 -------------------
 
 - OS: Linux, FreeBSD, MacOSX
-- PHP: 5.3.x, 5.4.x, 5.5.x
+- PHP: 5.3.x, 5.4.x, 5.5.x, 5.6.x
   - Tested only on 5.3.26, 5.4.16, and 5.5.0
 - SAPI: CLI
   - Other SAPIs are not tested, but there is no SAPI-dependent code.
