@@ -11,6 +11,4 @@ before_script:
     - phpize && ./configure && make
 script:
     - make test | tee test-output.txt && grep 'TEST SUMMARY$' test-output.txt > /dev/null ; test $? '!=' 0
-matrix:
-    allow_failures:
-        - php: 5.6
+
